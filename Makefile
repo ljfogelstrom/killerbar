@@ -4,8 +4,7 @@ RUNNING != pidof killerbar
 objects = 	hello_world.o \
 			 	datetime.o \
 			 	run_command.o \
-			 	status.o \
-				util.c
+			 	status.o
 headers = 		util.h helpers.h
 bin = /usr/local/bin
 
