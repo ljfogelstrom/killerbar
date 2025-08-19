@@ -1,4 +1,4 @@
-static void init(void);
+union sigval;
 void notify (union sigval arg);
 void handle_signal_std (int signo);
 

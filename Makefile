@@ -5,7 +5,7 @@ objects = 	hello_world.o \
 			 	datetime.o \
 			 	run_command.o \
 			 	main.o
-headers = 		util.h helpers.h
+headers = 		util.h status.h
 bin = /usr/local/bin
 
 

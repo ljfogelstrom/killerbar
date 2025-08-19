@@ -9,6 +9,7 @@ extern char buffer[512];
 extern char *argv0;
 
 void die(const char *, ...);
+void warn(const char *, ...);
 
 int esnprintf(char *str, size_t size, const char *fmt, ...);
 const char *bprintf(const char *fmt, ...);
