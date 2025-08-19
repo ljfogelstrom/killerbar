@@ -1,13 +1,14 @@
 flags = -lX11 -pthread -Wall
 running != pidof killerbar
 objects = 	hello_world.o \
-			 	datetime.o \
-			 	run_command.o \
-				cpu.o \
-				util.o \
-				disk.o \
-				cat.o \
-			 	main.o
+			datetime.o \
+			run_command.o \
+			cpu.o \
+			util.o \
+			disk.o \
+			cat.o \
+			temperature.o \
+			main.o
 bin = /usr/local/bin
 
 

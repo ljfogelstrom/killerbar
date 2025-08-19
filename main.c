@@ -26,20 +26,22 @@
 typedef struct {
     const char                  *(*function)(const char *);
     const char                  *arg;
+    const char                  *fmt;
     struct itimerspec           timerspec;
     struct sigevent             event;
     timer_t                     timer;
 } Blocks;
 
 static Blocks block[] = {
-    /* function         argument                interval / initial timer value      */
-    { datetime,         "%F %T",                TIMER(1, 1)      },
-    { run_command,      "setvolume",            TIMER(0, 3)         },
-    { temp,      "/sys/class/thermal/thermal_zone2/temp",               TIMER(10, 1)         },
-    { cpu_perc,         NULL,                   TIMER(10, 1)         },
+    /* function         argument                            format          interval / initial timer value      */
+    { datetime,         "%F %T",                "| %s",                             TIMER(1, 1)         },
+    { run_command,      "setvolume",            "| %s",                             TIMER(0, 3)         },
+    { temp,      "/sys/class/thermal/thermal_zone2/temp",   "%sC",                  TIMER(10, 1)        },
+    { cpu_perc,         NULL,                               "%s",                   TIMER(10, 3)        },
 };
 
-static char* delimiter = " | ";
+/* set this if you don't want to mess around with the formatting too much */
+static char* delimiter = " ";
 
 static constexpr unsigned int length = LEN(block);
 static sigset_t sigset;
@@ -138,7 +140,7 @@ int main(int argc, char *argv[])
             if (!block[i].timerspec.it_interval.tv_sec && !block[i].timerspec.it_interval.tv_nsec) { /* is intermittent */
                 timer_settime(block[i].timer, 0, &block[i].timerspec, NULL);
             }
-            strcpy(status[i], buffer);
+            sprintf(status[i], block[i].fmt, buffer);
             for (int j = length-1; j >= 0; j--) {
                 strcat(result, status[j]);
                 if (j && *status[j]) strcat(result, delimiter);
