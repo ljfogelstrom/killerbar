@@ -21,6 +21,8 @@
 #include "status.h"
 
 #define ERR(x)          err(EXIT_FAILURE, # x": %d", errno);
+#define TIMER(x, y)     { { (int)x, (long)((x - (int)x) * 10e8) }, \
+                          { (int)y, (long)((y - (int)y) * 10e8) } }
 
 /* concept: assign each status block to an unique realtime signal */
 typedef struct {
@@ -33,10 +35,14 @@ typedef struct {
 } Blocks;
 
 static Blocks block[] = {
-    { datetime,     "%F %T",        { .it_interval.tv_sec = 1, .it_value.tv_sec = 1 },                  0 },
-    { hello_world,     "- %s - ",           { .it_interval.tv_sec = 3, .it_value.tv_sec = 1 },          0 },
-    { run_command,       "echo 'hello'",      { .it_interval.tv_sec = 0,    .it_value.tv_sec = 3 },  1 },
+    /* function         argument                interval / initial timer value      decaying */
+    { datetime,         "%F %T",                TIMER(1, 1.35),                     0 },
+    { hello_world,      "- %s -",               TIMER(3, 1),                        0 },
+    { run_command,      "setvolume",            TIMER(0, 3),                        1 },
+    { cpu_perc,         NULL,                   TIMER(5, 2),                        0 },
 };
+
+static char* delimiter = " | ";
 
 static constexpr unsigned int length = LEN(block);
 static sigset_t sigset;
@@ -135,6 +141,7 @@ int main(int argc, char *argv[])
             strcpy(status[i], buffer);
             for (int j = length-1; j >= 0; j--) {
                 strcat(result, status[j]);
+                if (j && *status[j]) strcat(result, delimiter);
             }
             if (sflag || vflag) puts(result);
             else {
@@ -142,6 +149,9 @@ int main(int argc, char *argv[])
                 XFlush(dpy);
             }
             memset(result, 0, 256);
+            memset(buffer, 0, 512); /* added this additional call so that the 
+                                     * buffer contents are not printed multiple times by accident
+                                     */
         }
     }
 

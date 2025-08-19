@@ -4,6 +4,8 @@ RUNNING != pidof killerbar
 objects = 	hello_world.o \
 			 	datetime.o \
 			 	run_command.o \
+				cpu.o \
+				util.o \
 			 	main.o
 headers = 		util.h status.h
 bin = /usr/local/bin
@@ -24,7 +26,7 @@ install: all
 	cp -f killerbar ${bin}
 ifdef RUNNING
 	kill -9 ${RUNNING}
-	./killerbar &
+	sudo -u ljf killerbar &
 endif
 
 uninstall:
