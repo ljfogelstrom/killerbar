@@ -18,10 +18,10 @@
 #define _ISOC23_SOURCE
 
 #include "util.h"
-#include "helpers.h"
+#include "status.h"
 
-#define ARM_TIMER(x)    timer_settime(x.timer, 0, &x.timerspec, NULL)
 #define ERR(x)          err(EXIT_FAILURE, # x": %d", errno);
+
 /* concept: assign each status block to an unique realtime signal */
 typedef struct {
     const char                  *(*function)(const char *);
@@ -35,7 +35,7 @@ typedef struct {
 static Blocks block[] = {
     { datetime,     "%F %T",        { .it_interval.tv_sec = 1, .it_value.tv_sec = 1 },                  0 },
     { hello_world,     "- %s - ",           { .it_interval.tv_sec = 3, .it_value.tv_sec = 1 },          0 },
-    { hello_world,       "echo %s 'hello'",      { .it_interval.tv_sec = 0,    .it_value.tv_sec = 3 },  1 },
+    { run_command,       "echo 'hello'",      { .it_interval.tv_sec = 0,    .it_value.tv_sec = 3 },  1 },
 };
 
 static constexpr unsigned int length = LEN(block);
@@ -45,9 +45,10 @@ char buffer[512];
 static char status[length][256];
 static char result[512];
 
+static volatile int running = 1;
+
 static _Bool oneflag=0, sflag=0, vflag=0;
 
-void notify (union sigval arg);
 
 static void init(void)
 {
@@ -58,7 +59,7 @@ static void init(void)
         block[i].event.sigev_signo = SIGRTMIN + i;
         ret = timer_create(CLOCK_REALTIME, &block[i].event, &block[i].timer);
         if (ret) ERR(timer_create);
-        ret = ARM_TIMER(block[i]);
+        ret = timer_settime(block[i].timer, 0, &block[i].timerspec, NULL);
         if (ret) ERR(timer_settime);
         } else {
             block[i].event.sigev_notify = SIGEV_THREAD;
@@ -74,6 +75,19 @@ void notify (union sigval arg)
 {
     int i = arg.sival_int;
     strcpy(status[i], "");
+    /* hides the block when timer expires */
+}
+
+void handle_signal_std (int signo)
+{
+    switch (signo) {
+        case SIGCHLD:
+            if (vflag) fprintf(stderr, "SIGCHLD received");
+            break;
+        case SIGINT:
+            running = 0;
+            break;
+    }
 }
 
 int main(int argc, char *argv[])
@@ -105,26 +119,30 @@ int main(int argc, char *argv[])
 
     int signo;
     /* main event loop */
-    while (1) {
+    while (running) {
         sigwait(&sigset, &signo);
         if (vflag) fprintf(stderr, "Signal received: %d\n", signo);
         int i = signo - SIGRTMIN;
         if (i < 0)
-            break;
-        block[i].function(block[i].arg);
-        if (block[i].decay) {
-            ARM_TIMER(block[i]);
-        }
-        strcpy(status[i], buffer);
-        for (int j = length-1; j >= 0; j--) {
-            strcat(result, status[j]);
-        }
-        if (sflag || vflag) puts(result);
+            handle_signal_std(signo);
+        else if (i > length)
+            fprintf(stderr, "Signal %d is unassigned\n", signo);
         else {
-            XStoreName(dpy, root, result);
-            XFlush(dpy);
+            block[i].function(block[i].arg);
+            if (block[i].decay) {
+                timer_settime(block[i].timer, 0, &block[i].timerspec, NULL);
+            }
+            strcpy(status[i], buffer);
+            for (int j = length-1; j >= 0; j--) {
+                strcat(result, status[j]);
+            }
+            if (sflag || vflag) puts(result);
+            else {
+                XStoreName(dpy, root, result);
+                XFlush(dpy);
+            }
+            memset(result, 0, 256);
         }
-        memset(result, 0, 256);
     }
 
     fprintf(stderr, "Signal received: %d\n", signo);
