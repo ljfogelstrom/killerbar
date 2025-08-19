@@ -26,7 +26,6 @@ install: all
 	cp -f killerbar ${bin}
 ifdef RUNNING
 	kill -9 ${RUNNING}
-	sudo -u ljf killerbar &
 endif
 
 uninstall:
