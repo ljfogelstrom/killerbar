@@ -3,7 +3,7 @@
 #include <string.h>
 
 #include "util.h"
-#include "helpers.h"
+#include "status.h"
 
 const char *
 run_command(const char *cmd)

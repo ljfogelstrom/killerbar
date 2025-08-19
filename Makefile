@@ -4,8 +4,8 @@ RUNNING != pidof killerbar
 objects = 	hello_world.o \
 			 	datetime.o \
 			 	run_command.o \
-			 	status.o
-headers = 		util.h helpers.h
+			 	main.o
+headers = 		util.h status.h
 bin = /usr/local/bin
 
 
@@ -31,6 +31,6 @@ uninstall:
 	rm ${bin}/killerbar
 
 debug: all
-#	gdb --args killerbar -s
+	gdb --args killerbar -v
 
 asm: CFLAGS += -S
