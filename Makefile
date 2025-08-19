@@ -1,31 +1,32 @@
-CFLAGS = -g -lX11 -pthread -Wall
-RUNNING != pidof killerbar
-
+flags = -lX11 -pthread -Wall
+running != pidof killerbar
 objects = 	hello_world.o \
 			 	datetime.o \
 			 	run_command.o \
 				cpu.o \
 				util.o \
+				disk.o \
+				cat.o \
 			 	main.o
-headers = 		util.h status.h
 bin = /usr/local/bin
 
 
 all: killerbar
 
 killerbar: ${objects}
-	cc ${CFLAGS} -o killerbar ${objects}
+	cc ${flags} ${CFLAGS} -o killerbar $^
 
-${objects}: ${objects:.o=.c} ${headers}
-	cc ${CFLAGS} -c ${objects:.o=.c}
+${objects}: ${objects:.o=.c}
+	cc ${flags} ${CFLAGS} -c $^
 
 clean: ${objects}
-	rm *.o *.s
+	rm *.o 
+	rm *.s
 
 install: all
 	cp -f killerbar ${bin}
-ifdef RUNNING
-	kill -9 ${RUNNING}
+ifdef running
+	kill -9 ${running}
 endif
 
 uninstall:
@@ -34,4 +35,4 @@ uninstall:
 debug: all
 	gdb --args killerbar -v
 
-asm: CFLAGS += -S
+CFLAGS =

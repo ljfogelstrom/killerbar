@@ -1,6 +1,4 @@
 /* TODO:
- *      - write a macro for assigning timer values and intervals
- *      - add logic for 'decaying' status blocks
  *      - (in the future) add multi-threading and wide-string support
  */
 #include <stdlib.h>
@@ -28,18 +26,17 @@
 typedef struct {
     const char                  *(*function)(const char *);
     const char                  *arg;
-    const struct itimerspec     timerspec;
-    const _Bool                 decay;
+    struct itimerspec           timerspec;
     struct sigevent             event;
     timer_t                     timer;
 } Blocks;
 
 static Blocks block[] = {
-    /* function         argument                interval / initial timer value      decaying */
-    { datetime,         "%F %T",                TIMER(1, 1.35),                     0 },
-    { hello_world,      "- %s -",               TIMER(3, 1),                        0 },
-    { run_command,      "setvolume",            TIMER(0, 3),                        1 },
-    { cpu_perc,         NULL,                   TIMER(5, 2),                        0 },
+    /* function         argument                interval / initial timer value      */
+    { datetime,         "%F %T",                TIMER(1, 1)      },
+    { run_command,      "setvolume",            TIMER(0, 3)         },
+    { temp,      "/sys/class/thermal/thermal_zone2/temp",               TIMER(10, 1)         },
+    { cpu_perc,         NULL,                   TIMER(10, 1)         },
 };
 
 static char* delimiter = " | ";
@@ -59,15 +56,18 @@ static _Bool oneflag=0, sflag=0, vflag=0;
 static void init(void)
 {
     int i, ret;
-    for (i = 0; i<length; i++) { /* just give em all a signal */
+    for (i = 0; i<length; i++) { /* initialize continuous blocks */
         if (block[i].timerspec.it_interval.tv_sec || block[i].timerspec.it_interval.tv_nsec ) { /* yep */
+            if (!memcmp(&block[i].timerspec.it_value, &(time_t){ 0 }, sizeof(time_t)))
+                block[i].timerspec.it_value.tv_sec = 1;
+                /* default initial timer value */
         block[i].event.sigev_notify = SIGEV_SIGNAL;
         block[i].event.sigev_signo = SIGRTMIN + i;
         ret = timer_create(CLOCK_REALTIME, &block[i].event, &block[i].timer);
         if (ret) ERR(timer_create);
         ret = timer_settime(block[i].timer, 0, &block[i].timerspec, NULL);
         if (ret) ERR(timer_settime);
-        } else {
+        } else { /* initialize intermittent blocks */
             block[i].event.sigev_notify = SIGEV_THREAD;
             block[i].event.sigev_notify_function = notify;
             block[i].event.sigev_value.sival_int = i;
@@ -90,7 +90,7 @@ void handle_signal_std (int signo)
         case SIGCHLD:
             if (vflag) fprintf(stderr, "SIGCHLD received");
             break;
-        case SIGINT:
+        default:
             running = 0;
             break;
     }
@@ -135,7 +135,7 @@ int main(int argc, char *argv[])
             fprintf(stderr, "Signal %d is unassigned\n", signo);
         else {
             block[i].function(block[i].arg);
-            if (block[i].decay) {
+            if (!block[i].timerspec.it_interval.tv_sec && !block[i].timerspec.it_interval.tv_nsec) { /* is intermittent */
                 timer_settime(block[i].timer, 0, &block[i].timerspec, NULL);
             }
             strcpy(status[i], buffer);
@@ -149,9 +149,8 @@ int main(int argc, char *argv[])
                 XFlush(dpy);
             }
             memset(result, 0, 256);
-            memset(buffer, 0, 512); /* added this additional call so that the 
-                                     * buffer contents are not printed multiple times by accident
-                                     */
+            memset(buffer, 0, 512); /* added this additional call so that the same
+                                     * buffer contents are not printed repeated times by accident */
         }
     }
 
