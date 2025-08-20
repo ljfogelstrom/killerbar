@@ -1,4 +1,4 @@
-flags = -lX11 -pthread -Wall
+CFLAGS = -lX11 -pthread -Wall
 running != pidof killerbar
 objects = 	hello_world.o \
 			datetime.o \
@@ -15,10 +15,10 @@ bin = /usr/local/bin
 all: killerbar
 
 killerbar: ${objects}
-	cc ${flags} ${CFLAGS} -o killerbar $^
+	${CC} ${CFLAGS} -o $@ $^
 
 ${objects}: ${objects:.o=.c}
-	cc ${flags} ${CFLAGS} -c $^
+	${CC} ${CFLAGS} -c $^
 
 clean: ${objects}
 	rm *.o 
@@ -35,5 +35,3 @@ uninstall:
 
 debug: all
 	gdb --args killerbar -v
-
-CFLAGS =
