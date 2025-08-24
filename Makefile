@@ -1,24 +1,23 @@
-CFLAGS = -lX11 -pthread -Wall
+flags = -lX11 -pthread -Wall
 running != pidof killerbar
-objects = 	hello_world.o \
-			datetime.o \
-			run_command.o \
-			cpu.o \
-			util.o \
-			disk.o \
-			cat.o \
-			temperature.o \
-			main.o
+objects = 	datetime.o \
+		run_command.o \
+		cpu.o \
+		util.o \
+		disk.o \
+		cat.o \
+		temperature.o \
+		main.o
 bin = /usr/local/bin
 
 
 all: killerbar
 
 killerbar: ${objects}
-	${CC} ${CFLAGS} -o $@ $^
+	${CC} ${flags} ${CFLAGS} -o $@ $^
 
 ${objects}: ${objects:.o=.c}
-	${CC} ${CFLAGS} -c $^
+	${CC} ${flags} ${CFLAGS} -c $^
 
 clean: ${objects}
 	rm *.o 

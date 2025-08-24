@@ -52,7 +52,7 @@ static char result[512];
 
 static volatile int running = 1;
 
-static _Bool oneflag=0, sflag=0, vflag=0;
+static _Bool sflag, vflag;
 
 
 static void init(void)
@@ -101,11 +101,8 @@ void handle_signal_std (int signo)
 int main(int argc, char *argv[])
 {
     short opt;
-    while ((opt = getopt(argc, argv, "1sv")) != -1) {
+    while ((opt = getopt(argc, argv, "sv")) != -1) {
         switch (opt) {
-            case '1': // run all commands once
-                oneflag = 1;
-                break;
             case 's': // print to stdout
                 sflag = 1;
                 break;

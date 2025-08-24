@@ -19,9 +19,9 @@ Block configuration is done by editing the `block` array in the `main.c` source 
 This status-bar is designed to be compatible with the helper-functions included in slstatus. Using the `run_command` function you can execute a shell command and print its output to the statusline.
 
 ## Install
-`git clone https://github.com/ljfogelstrom/killerbar  
-cd killerbar  
-sudo make install`
+`git clone https://github.com/ljfogelstrom/killerbar`\
+`cd killerbar`\
+`sudo make install`
 
 ## Usage
 Add
