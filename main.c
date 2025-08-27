@@ -35,9 +35,11 @@ typedef struct {
 static Blocks block[] = {
     /* function         argument                            format          interval / initial timer value      */
     { datetime,         "%F %T",                "| %s",                             TIMER(1, 1)         },
-    { run_command,      "setvolume",            "| %s",                             TIMER(0, 3)         },
+    { run_command,      "setvolume",            "| vol: %s",                             TIMER(0, 3)         },
     { temp,      "/sys/class/thermal/thermal_zone2/temp",   "%sC",                  TIMER(10, 1)        },
-    { cpu_perc,         NULL,                               "%s",                   TIMER(10, 3)        },
+    { cpu_perc,         NULL,                               "%s",                   TIMER(10, 5)        },
+    { ram_total,         NULL,                              "%s |",                TIMER(20, 2)		},
+    { ram_used,         NULL,                               "MEM: %s /",                  TIMER(20, 2)        },
 };
 
 /* set this if you don't want to mess around with the formatting too much */

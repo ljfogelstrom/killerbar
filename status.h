@@ -12,3 +12,5 @@ const char* disk_used(const char* path);
 const char* disk_total(const char* path);
 const char* temp(const char* file);
 const char* cat(const char* file);
+const char* ram_used(const char* unused);
+const char* ram_total(const char* unused);

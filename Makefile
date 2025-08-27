@@ -2,6 +2,7 @@ flags = -lX11 -pthread -Wall
 running != pidof killerbar
 objects = 	datetime.o \
 		run_command.o \
+		ram.o \
 		cpu.o \
 		util.o \
 		disk.o \
