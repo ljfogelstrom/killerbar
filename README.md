@@ -1,6 +1,6 @@
 # killerbar
 
-A status-bar inspired by [slstatus](https://suckless.org/tools/sltatus) and [dwmblocks](https://github.com/torrinfail/dwmblocks).
+A status-bar based off of [slstatus](https://suckless.org/tools/sltatus).
 
 This program works by setting the root name in X, and is intended for use with the [dwm](https://suckless.org/dwm) window manager and its derivatives.
 
