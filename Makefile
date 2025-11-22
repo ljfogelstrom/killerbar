@@ -1,6 +1,13 @@
-flags = -lX11 -pthread -Wall
-running != pidof killerbar
-objects = 	datetime.o \
+CC = gcc
+CFLAGS = -Wall -Wextra -O2 -fcommon
+LDFLAGS = -lX11
+
+SRC_DIR = ./src
+BUILD_DIR = ./build
+
+TARGET = killerbar
+
+OBJS = $(addprefix ${BUILD_DIR}/, datetime.o \
 		run_command.o \
 		ram.o \
 		cpu.o \
@@ -8,30 +15,18 @@ objects = 	datetime.o \
 		disk.o \
 		cat.o \
 		temperature.o \
-		main.o
-bin = /usr/local/bin
+		main.o)
 
+all: always ${TARGET}
 
-all: killerbar
+${TARGET}: ${OBJS}
+	${CC} ${CFLAGS} -o $@ $^ ${LDFLAGS}
 
-killerbar: ${objects}
-	${CC} ${flags} ${CFLAGS} -o $@ $^
+${BUILD_DIR}/%.o: ${SRC_DIR}/%.c
+	${CC} ${CFLAGS} -c $< -o $@ ${LDFLAGS}
 
-${objects}: ${objects:.o=.c}
-	${CC} ${flags} ${CFLAGS} -c $^
+always:
+	[[ -d ${BUILD_DIR} ]] || mkdir -p ${BUILD_DIR}
 
-clean: ${objects}
-	rm *.o 
-	rm *.s
-
-install: all
-	cp -f killerbar ${bin}
-ifdef running
-	kill -9 ${running}
-endif
-
-uninstall:
-	rm ${bin}/killerbar
-
-debug: all
-	gdb --args killerbar -v
+clean:
+	rm -rf ${BUILD_DIR} ${TARGET}
