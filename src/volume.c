@@ -5,6 +5,9 @@
 #include <sys/ioctl.h>
 #include <unistd.h>
 
+#include "status.h"
+#include "util.h"
+
 #if defined(__OpenBSD__) | defined(__FreeBSD__)
 	#include <poll.h>
 	#include <sndio.h>

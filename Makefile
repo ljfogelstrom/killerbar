@@ -1,32 +1,35 @@
-CC = gcc
-CFLAGS = -Wall -Wextra -O2 -fcommon
+CFLAGS = -Wall -O2 -fcommon
 LDFLAGS = -lX11
 
+BUILD = ./build
 SRC_DIR = ./src
-BUILD_DIR = ./build
+
+OBJ = $(addprefix ${BUILD}/,\
+      	main.o \
+	temperature.o \
+	datetime.o \
+	cat.o \
+	run_command.o \
+	util.o \
+	volume.o \
+	cpu.o \
+	disk.o \
+	ram.o)
 
 TARGET = killerbar
 
-OBJS = $(addprefix ${BUILD_DIR}/, datetime.o \
-		run_command.o \
-		ram.o \
-		cpu.o \
-		util.o \
-		disk.o \
-		cat.o \
-		temperature.o \
-		main.o)
+all: ${BUILD} ${TARGET}
 
-all: always ${TARGET}
-
-${TARGET}: ${OBJS}
+${TARGET}: ${OBJ} src/util.h src/status.h
 	${CC} ${CFLAGS} -o $@ $^ ${LDFLAGS}
 
-${BUILD_DIR}/%.o: ${SRC_DIR}/%.c
+${BUILD}/%.o: ${SRC_DIR}/%.c
 	${CC} ${CFLAGS} -c $< -o $@ ${LDFLAGS}
 
-always:
-	[[ -d ${BUILD_DIR} ]] || mkdir -p ${BUILD_DIR}
+${BUILD}:
+	mkdir -p $@
 
 clean:
-	rm -rf ${BUILD_DIR} ${TARGET}
+	rm -rf ${BUILD} ${TARGET}
+
+.PHONY: all clean

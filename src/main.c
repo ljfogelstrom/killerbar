@@ -18,21 +18,19 @@
 #include "util.h"
 #include "status.h"
 
+
 #define ERR(x)          err(EXIT_FAILURE, # x": %d", errno);
 #define TIMER(x, y)     { { (int)x, (long)((x - (int)x) * 10e8) }, \
                           { (int)y, (long)((y - (int)y) * 10e8) } }
 
-/* concept: assign each status block to an unique realtime signal */
-typedef struct {
+static struct Blocks {
     const char                  *(*function)(const char *);
     const char                  *arg;
     const char                  *fmt;
     struct itimerspec           timerspec;
     struct sigevent             event;
     timer_t                     timer;
-} Blocks;
-
-static Blocks block[] = {
+} block[] = {
     /* function         argument                            format          interval / initial timer value      */
     { datetime,         "%F %T",                "| %s",                             TIMER(1, 1)         },
     { run_command,      "setvolume",            "| vol: %s",                             TIMER(0, 3)         },
@@ -45,7 +43,7 @@ static Blocks block[] = {
 /* set this if you don't want to mess around with the formatting too much */
 static char* delimiter = " ";
 
-static constexpr unsigned int length = LEN(block);
+static constexpr int length = LEN(block);
 static sigset_t sigset;
 
 char buffer[512];
@@ -57,6 +55,7 @@ static volatile int running = 1;
 static _Bool sflag, vflag;
 
 
+/* assign each status block to an unique realtime signal */
 static void init(void)
 {
     int i, ret;
