@@ -4,6 +4,7 @@ LDFLAGS = -lX11
 BUILD = ./build
 SRC_DIR = ./src
 
+VPATH = src:.
 OBJ = $(addprefix ${BUILD}/,\
       	main.o \
 	temperature.o \
@@ -23,7 +24,7 @@ all: ${BUILD} ${TARGET}
 ${TARGET}: ${OBJ} src/util.h src/status.h
 	${CC} ${CFLAGS} -o $@ $^ ${LDFLAGS}
 
-${BUILD}/%.o: ${SRC_DIR}/%.c
+${BUILD}/%.o: %.c
 	${CC} ${CFLAGS} -c $< -o $@ ${LDFLAGS}
 
 ${BUILD}:

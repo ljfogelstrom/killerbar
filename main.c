@@ -15,8 +15,8 @@
 #include <features.h>
 #define _ISOC23_SOURCE
 
-#include "util.h"
-#include "status.h"
+#include "src/util.h"
+#include "src/status.h"
 
 
 #define ERR(x)          err(EXIT_FAILURE, # x": %d", errno);
