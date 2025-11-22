@@ -2,7 +2,6 @@ CFLAGS = -Wall -O2 -fcommon
 LDFLAGS = -lX11
 
 BUILD = ./build
-SRC_DIR = ./src
 
 VPATH = src:.
 OBJ = $(addprefix ${BUILD}/,\
@@ -33,4 +32,8 @@ ${BUILD}:
 clean:
 	rm -rf ${BUILD} ${TARGET}
 
-.PHONY: all clean
+install:
+	chmod 755 killerbar
+	mv -f killerbar /usr/local/bin/killerbar
+
+.PHONY: all clean install
