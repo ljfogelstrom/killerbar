@@ -1,4 +1,4 @@
-CFLAGS = -Wall -O2 -fcommon
+CFLAGS = -Wall -O2 -fcommon -Wextra
 LDFLAGS = -lX11
 
 BUILD = ./build
