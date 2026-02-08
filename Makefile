@@ -1,4 +1,4 @@
-CFLAGS = -Wall -O2 -fcommon -Wextra
+CFLAGS = -Wall -O2 -fcommon -Wextra -Wno-missing-field-initializers
 LDFLAGS = -lX11
 
 BUILD = ./build
@@ -20,8 +20,8 @@ TARGET = killerbar
 
 all: ${BUILD} ${TARGET}
 
-${TARGET}: ${OBJ} src/util.h src/status.h
-	${CC} ${CFLAGS} -o $@ $^ ${LDFLAGS}
+${TARGET}: ${OBJ} src/util.h src/status.h config.h
+	${CC} ${CFLAGS} -o $@ ${OBJ} ${LDFLAGS}
 
 ${BUILD}/%.o: %.c
 	${CC} ${CFLAGS} -c $< -o $@ ${LDFLAGS}
@@ -34,6 +34,6 @@ clean:
 
 install:
 	chmod 755 killerbar
-	mv -f killerbar /usr/local/bin/killerbar
+	cp -f killerbar /usr/local/bin/killerbar
 
 .PHONY: all clean install

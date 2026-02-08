@@ -24,25 +24,16 @@
 #define TIMER(x, y)     { { (int)x, (long)((x - (int)x) * 10e8) }, \
                           { (int)y, (long)((y - (int)y) * 10e8) } }
 
-static struct Blocks {
+struct Blocks {
     const char                  *(*function)(const char *);
     const char                  *arg;
     const char                  *fmt;
     struct itimerspec           timerspec;
     struct sigevent             event;
     timer_t                     timer;
-} block[] = {
-    /* function         argument                            format          interval / initial timer value      */
-    { datetime,         "%F %T",                "| %s",                             TIMER(1, 1)         },
-    { run_command,      "setvolume",            "| vol: %s",                             TIMER(0, 3)         },
-    { temp,      "/sys/class/thermal/thermal_zone2/temp",   "%sC",                  TIMER(10, 1)        },
-    { cpu_perc,         NULL,                               "%s",                   TIMER(10, 5)        },
-    { ram_total,         NULL,                              "%s |",                TIMER(20, 2)		},
-    { ram_used,         NULL,                               "MEM: %s /",                  TIMER(20, 2)        },
-};
+}; 
 
-/* set this if you don't want to mess around with the formatting too much */
-static char* delimiter = " ";
+#include "config.h"
 
 static constexpr int length = LEN(block);
 static sigset_t sigset;
@@ -110,7 +101,7 @@ void handle_signal_std (int signo)
 
 int main(int argc, char *argv[])
 {
-    short opt;
+    char opt;
     while ((opt = getopt(argc, argv, "sv")) != -1) {
         switch (opt) {
             case 's': // print to stdout
