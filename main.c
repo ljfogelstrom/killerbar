@@ -46,7 +46,6 @@ static volatile int running = 1;
 
 static _Bool sflag, vflag;
 
-
 /* assign each status block to an unique realtime signal */
 static void init(void)
 {
@@ -153,9 +152,8 @@ int main(int argc, char *argv[])
                 XStoreName(dpy, root, result);
                 XFlush(dpy);
             }
-
             memset(result, 0, 256);
-            memset(buffer, 0, 512); /* so that the same buffer contents are not printed repeated times by accident */
+            memset(buffer, 0, 512);
         }
     }
 
